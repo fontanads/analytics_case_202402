@@ -1,6 +1,15 @@
 # analytics_case_202402
 DS role recruitment case. Solutions and aux code.  
 
+## Assignment
+
+Prepare a short presentation explaining what the data suggests in terms of: 
+- the key drivers of Mobile performance, 
+- where the opportunities in Mobile may lie. 
+
+Please also consider what other data or information you would request, in order to gain additional insight.
+
+
 ## Notes about the dataset
 
 ### Inspection over dimensions
