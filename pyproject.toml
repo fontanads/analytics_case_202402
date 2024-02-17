@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "analytics-case-202402"
+version = "0.1.0"
+description = ""
+authors = ["fontanads <fontanads@gmail.com>"]
+readme = "README.md"
+# when installing, should include packages from src folder (etl, models, etc)
+packages = [
+    { include = "etl", from = "src" }
+] 
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.0"
+numpy = "^1.26.4"
+altair = "^5.2.0"
+streamlit = "^1.31.1"
+scikit-learn = "^1.4.1.post1"
+openpyxl = "^3.1.2"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
