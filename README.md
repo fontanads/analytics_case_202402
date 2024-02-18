@@ -10,14 +10,6 @@ Prepare a short presentation explaining what the data suggests in terms of:
 
 Please also consider what other data or information you would request, in order to gain additional insight.
 
-## current ideas (backlog)
-
-- super region to super region Sankey plot of net orders and net gross bookings
-- YoY growth (orders and gross bookings)
-- Mobile flag to explain uplift ("test"/causal effect)
-  - mobile (all) vs. desktop
-  - mobile app vs mobile web (exclude desktop)
-
 ## Extra Information that would be useful
 
 - dimension of "Age range" of customers, to check for trends in mobile vs. desktop
