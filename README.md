@@ -1,4 +1,5 @@
-# analytics_case_202402
+# Analytics Case - Travel acommodation bookings
+
 DS role recruitment case. Solutions and aux code.  
 
 ## Assignment
@@ -9,6 +10,21 @@ Prepare a short presentation explaining what the data suggests in terms of:
 
 Please also consider what other data or information you would request, in order to gain additional insight.
 
+## current ideas (backlog)
+
+- super region to super region Sankey plot of net orders and net gross bookings
+- YoY growth (orders and gross bookings)
+- Mobile flag to explain uplift ("test"/causal effect)
+  - mobile (all) vs. desktop
+  - mobile app vs mobile web (exclude desktop)
+- breakdown APAC 2022-W45 to identify why is it doubled in gross bookings
+
+## Extra Information that would be useful
+
+- dimension of "Age range" of customers, to check for trends in mobile vs. desktop
+- if it was customer level data, prior spending features would be useful
+- number of cancelled orders and number of total orders would be usefull to calculate cancelling ratio and check for effects on it
+- gross bookings of cancelled orders would also be interesting to understand if there is imbalance of avg. ticket and if this affects prob. of cancelling
 
 ## Notes about the dataset
 
@@ -35,7 +51,11 @@ Please also consider what other data or information you would request, in order 
 - `Property country`:
   - $207$ unique
   - US in top 5 destination of all super regions
-  - Thailand and UK top 5 for both APAC and EMEA
+  - Top destinations by net order
+    - APAC: Australia, Japan, South Korea
+    - EMEA: UK (by far), Norway, US
+    - LATAM: Brazil (domestic, by far), US (second by far), Italy
+    - North America: US (domestic, by far), Canada, Mexico
 - `Booking Window Group`
   - string is a bit messy
   - represents bins of time-length (in days) between booking and check in
@@ -92,4 +112,42 @@ Range is related to avg. data from 2022 to 2023.
   - `Bookings`: $73$M - $89$M
   - `Orders`: $295$k - $368$k
   - `Ticket`: $\$249$ - $\$241$
+
+
+### explaining negative values of gross bookings and orders
+
+By definition, cancellations will be deducted both in gross bookings as well as in transactions (orders) to calculate net values.  
+Does larger booking order group (booking a lot in advance to checking in) is the main cause of net negative orders / negative gross bookings (more chances to cancel)?
+
+- Confirmed larger frequency for net gross bookings (value counts when net gross bookings is negative)
+  ```
+    Booking Window Group
+        +90 days      1472
+        61-90 days    1152
+        46-60 days     939
+        15-30 days     782
+        31-45 days     753
+        8-14 days      532
+        4-7 days       296
+        2-3 days       155
+        0-1 days       118
+        Post Book        1
+  ```
+- Confirmed for net orders (value counts when net orders is negative)
+```
+   Booking Window Group
+     +90 days      942
+     61-90 days    702
+     46-60 days    530
+     31-45 days    414
+     15-30 days    408
+     8-14 days     249
+     4-7 days      104
+     2-3 days       32
+     0-1 days       24
+```
+
+Thus, the insight is that there is a larger probability of cancelling when the Hotel is booked with a lot of time in advance before the check in date.
+This should be better investigated to check for confounders and actual impact (maybe not a linear relationship).  
+Also, "probability" of cancelling is not available in this aggregated data.
 

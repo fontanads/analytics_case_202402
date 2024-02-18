@@ -19,11 +19,24 @@ class DataTransformer:
     def __init__(self, df: pd.DataFrame) -> None:
         self.df = df.copy()
 
-    def transform_data(self) -> pd.DataFrame:
-        self.fill_na_super_region()
-        self.drop_post_book()
+    def transform_data(
+            self, 
+            fill_super_region=True, 
+            drop_post_book=True, 
+            map_property_to_super_region=True
+        ) -> pd.DataFrame:
+
+        if fill_super_region:
+            self.fill_na_super_region()
+
+        if drop_post_book:
+            self.drop_post_book()
         self.split_week_col_into_date_cols()
-        self.map_property_countries_to_super_regions()
+
+        if map_property_to_super_region:
+            self.map_property_countries_to_super_regions()
+
+        self.reorder_and_rename_columns()
         return self.df
 
     def fill_na_super_region(self) -> None:
@@ -50,3 +63,37 @@ class DataTransformer:
         unique_mapping, mapped_series = country_mapper.map_countries_to_super_regions(self.df['Property Country'])
         self.df['Property Super Region'] = mapped_series
         return self.df
+    
+    def reorder_and_rename_columns(self) -> None:
+        # output columns order
+        cols_order = [
+            'Super Region',
+            'Country Name',
+            'Platform Type Name',
+            'Mobile Indicator Name',
+            'Property Super Region',
+            'Property Country',
+            'Booking Window Group',
+            'Date',
+            'Year',
+            'Week',
+            'Net Gross Booking Value USD',
+            'Net Orders']
+        
+        # rename columns simplifying the names with the following mapping dictionary
+        cols_mapping = {
+            'Super Region': 'client_region',
+            'Country Name': 'client_country',
+            'Platform Type Name': 'platform',
+            'Mobile Indicator Name': 'mobile',
+            'Property Super Region': 'property_region',
+            'Property Country': 'property_country',
+            'Booking Window Group': 'booking_window',
+            'Date': 'date',
+            'Year': 'year',
+            'Week': 'week',
+            'Net Gross Booking Value USD': 'net_gross_booking_usd',
+            'Net Orders': 'net_orders'
+        }
+
+        self.df = self.df[cols_order].rename(columns=cols_mapping)

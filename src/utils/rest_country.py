@@ -58,7 +58,8 @@ class CountrySuperRegionMapper:
             mapped_list = [unique_mapping[country] for country in countries]
             return unique_mapping, mapped_list
         elif input_type == 'series':
-            mapped_series = pd.Series([unique_mapping[country] for country in countries])
+            # Directly replace country names with their super regions using the unique_mapping
+            mapped_series = countries.replace(unique_mapping)
             return unique_mapping, mapped_series
 
 
