@@ -2,27 +2,47 @@ import pandas as pd
 from utils.rest_country import CountrySuperRegionMapper
 
 
-class DataLoader:
-
-    def __init__(self) -> None:
-        pass
-
-    def load_data_xlsx_from_tab(self, path: str, sheet_name: str) -> pd.DataFrame:
-        """Reads a xlsx from a specific sheet given the path and sheet name.
-        Returns a Pandas DataFrame.
-        """
-        return pd.read_excel(path, sheet_name=sheet_name)
-
-
 class DataTransformer:
+
+    # columns order for raw dataset columns + extra super region
+    cols_order = [
+        'Super Region',
+        'Country Name',
+        'Platform Type Name',
+        'Mobile Indicator Name',
+        'Property Super Region',
+        'Property Country',
+        'Booking Window Group',
+        'Date',
+        'Year',
+        'Week',
+        'Net Gross Booking Value USD',
+        'Net Orders'
+    ]
+
+    # mapping dictionary to rename columns
+    cols_mapping = {
+        'Super Region': 'client_region',
+        'Country Name': 'client_country',
+        'Platform Type Name': 'platform',
+        'Mobile Indicator Name': 'mobile',
+        'Property Super Region': 'property_region',
+        'Property Country': 'property_country',
+        'Booking Window Group': 'booking_window',
+        'Date': 'date',
+        'Year': 'year',
+        'Week': 'week',
+        'Net Gross Booking Value USD': 'net_gross_booking_usd',
+        'Net Orders': 'net_orders'
+    }
 
     def __init__(self, df: pd.DataFrame) -> None:
         self.df = df.copy()
 
     def transform_data(
-            self, 
-            fill_super_region=True, 
-            drop_post_book=True, 
+            self,
+            fill_super_region=True,
+            drop_post_book=True,
             map_property_to_super_region=True
         ) -> pd.DataFrame:
 
@@ -46,7 +66,7 @@ class DataTransformer:
     def drop_post_book(self) -> None:
         # drop rows where "Booking Window Group" is "Post Book"
         self.df = self.df[self.df['Booking Window Group'] != 'Post Book']
-    
+
     def split_week_col_into_date_cols(self) -> None:
         # week col follows the format "YYYY-WXX" where XX is the week number (double digit not guaranteed)
         self.df['Year'] = self.df['Week'].str.split('-').str[0]
@@ -63,37 +83,7 @@ class DataTransformer:
         unique_mapping, mapped_series = country_mapper.map_countries_to_super_regions(self.df['Property Country'])
         self.df['Property Super Region'] = mapped_series
         return self.df
-    
-    def reorder_and_rename_columns(self) -> None:
-        # output columns order
-        cols_order = [
-            'Super Region',
-            'Country Name',
-            'Platform Type Name',
-            'Mobile Indicator Name',
-            'Property Super Region',
-            'Property Country',
-            'Booking Window Group',
-            'Date',
-            'Year',
-            'Week',
-            'Net Gross Booking Value USD',
-            'Net Orders']
-        
-        # rename columns simplifying the names with the following mapping dictionary
-        cols_mapping = {
-            'Super Region': 'client_region',
-            'Country Name': 'client_country',
-            'Platform Type Name': 'platform',
-            'Mobile Indicator Name': 'mobile',
-            'Property Super Region': 'property_region',
-            'Property Country': 'property_country',
-            'Booking Window Group': 'booking_window',
-            'Date': 'date',
-            'Year': 'year',
-            'Week': 'week',
-            'Net Gross Booking Value USD': 'net_gross_booking_usd',
-            'Net Orders': 'net_orders'
-        }
 
-        self.df = self.df[cols_order].rename(columns=cols_mapping)
+    def reorder_and_rename_columns(self) -> None:
+
+        self.df = self.df[self.cols_order].rename(columns=self.cols_mapping)
