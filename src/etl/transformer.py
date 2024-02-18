@@ -60,6 +60,7 @@ class DataTransformer:
             fill_super_region=True,
             drop_post_book=True,
             map_property_to_super_region=True,
+            replace_us_client_country=True,
             treat_apac_2022w45_outlier=True
     ) -> pd.DataFrame:
 
@@ -67,6 +68,9 @@ class DataTransformer:
 
         if fill_super_region:
             self.fill_na_super_region()
+
+        if replace_us_client_country:
+            self.replace_us_client_country()
 
         if treat_apac_2022w45_outlier:
             self.treat_apac_2022w45_outlier()
@@ -131,6 +135,9 @@ class DataTransformer:
         mask &= self.df['Year'] == 2022
 
         self.df.loc[mask, 'Net Gross Booking Value USD'] = self.df.loc[mask, 'Net Gross Booking Value USD'] / 100
+
+    def replace_us_client_country(self):
+        self.df["Country Name"] = self.df["Country Name"].replace({"US": "United States of America"})
 
     def apply_dtypes(self) -> None:
         self.df = self.df.astype(self.cols_dtype)
