@@ -29,26 +29,26 @@ class SankeyTree:
         return categorical_colors
     
     def generate_nodes_and_links(self):
-        # Nodes list and mapping of node names to indices
         nodes = []
         node_indices = {}
-        
-        # Helper function to add nodes and ensure uniqueness
+        links = {'source': [], 'target': [], 'value': [], 'color': []}
+
         def add_node(node):
             if node not in node_indices:
                 node_indices[node] = len(nodes)
                 nodes.append(node)
                 self.color_map[node_indices[node]] = self.categorical_colors[node_indices[node] % len(self.categorical_colors)]
                 
-        # Links with source, target, and value (metric)
-        links = {'source': [], 'target': [], 'value': [], 'color': []}
-        
-        # Generate nodes and links
-        for i, (src_col, tgt_col) in enumerate(zip([self.root_nodes_col] + self.sequence_cols[:-1], self.sequence_cols)):
+        def should_skip(row, src_col, tgt_col):
+            # Define logic to determine if a node should be skipped
+            return row[src_col] == row[tgt_col]
+
+        for i, cols in enumerate(zip([self.root_nodes_col] + self.sequence_cols[:-1], self.sequence_cols)):
+            src_col, tgt_col = cols
             grouped_data = self.dataframe.groupby([src_col, tgt_col]).sum().reset_index()
+            
             for _, row in grouped_data.iterrows():
-                # Skip rows where the target doesn't provide a valid split or is identical to the source (for non-terminal nodes)
-                if row[src_col] == row[tgt_col] and i < len(self.sequence_cols) - 1:
+                if should_skip(row, src_col, tgt_col) and i < len(self.sequence_cols) - 1:
                     continue
                 
                 src_node = f'{src_col}: {row[src_col]}'
@@ -58,8 +58,7 @@ class SankeyTree:
                 links['source'].append(node_indices[src_node])
                 links['target'].append(node_indices[tgt_node])
                 links['value'].append(row[self.metric])
-                
-        # Apply the color of the source node to the link
+
         for src in links['source']:
             links['color'].append(self.color_map[src])
 
