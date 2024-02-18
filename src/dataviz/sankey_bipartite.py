@@ -2,6 +2,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 
+
 class SankeyBipartite:
     """A class to create a Sankey chart from a DataFrame with source and target nodes and a flow value."""
     def __init__(self, df: pd.DataFrame, flow_column: str, source_column: str, target_column: str, normalized=False):
