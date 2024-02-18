@@ -36,6 +36,22 @@ class DataTransformer:
         'Net Orders': 'net_orders'
     }
 
+    # dtypes of the renamed columns (category as type "string")
+    cols_dtype = {
+        'client_region': 'string',
+        'client_country': 'string',
+        'platform': 'string',
+        'mobile': 'string',
+        'property_region': 'string',
+        'property_country': 'string',
+        'booking_window': 'string',
+        'date': 'datetime64[ns]',
+        'year': 'int',
+        'week': 'int',
+        'net_gross_booking_usd': 'float',
+        'net_orders': 'int'
+    }    
+
     def __init__(self, df: pd.DataFrame) -> None:
         self.df = df.copy()
 
@@ -43,20 +59,27 @@ class DataTransformer:
             self,
             fill_super_region=True,
             drop_post_book=True,
-            map_property_to_super_region=True
-        ) -> pd.DataFrame:
+            map_property_to_super_region=True,
+            treat_apac_2022w45_outlier=True
+    ) -> pd.DataFrame:
+
+        self.split_week_col_into_date_cols()
 
         if fill_super_region:
             self.fill_na_super_region()
 
+        if treat_apac_2022w45_outlier:
+            self.treat_apac_2022w45_outlier()
+
         if drop_post_book:
             self.drop_post_book()
-        self.split_week_col_into_date_cols()
 
         if map_property_to_super_region:
             self.map_property_countries_to_super_regions()
 
         self.reorder_and_rename_columns()
+        self.apply_dtypes()
+
         return self.df
 
     def fill_na_super_region(self) -> None:
@@ -69,7 +92,7 @@ class DataTransformer:
 
     def split_week_col_into_date_cols(self) -> None:
         # week col follows the format "YYYY-WXX" where XX is the week number (double digit not guaranteed)
-        self.df['Year'] = self.df['Week'].str.split('-').str[0]
+        self.df['Year'] = self.df['Week'].str.split('-').str[0].astype(int)
         self.df['Week'] = self.df['Week'].str.split('-').str[1].str.replace('W', '')
         self.df['Week'] = self.df['Week'].astype(int)
         # below, we create a new column "Date" with the date corresponding to the first day of the week (on Monday)s
@@ -87,3 +110,28 @@ class DataTransformer:
     def reorder_and_rename_columns(self) -> None:
 
         self.df = self.df[self.cols_order].rename(columns=self.cols_mapping)
+
+    def treat_apac_2022w45_outlier(self):
+        # filter for:
+        # Super Region: APAC
+        # Country Name: Australia
+        # Property Country: Australia
+        # Week: 45
+        # Year: 2022
+        # Platform Type Name: Mobile App
+        # and divide "Net Gross Booking Value USD" by 100
+        # using raw column names before renaming
+
+        mask = pd.Series([True] * len(self.df), index=self.df.index)
+        mask &= self.df['Super Region'] == 'APAC'
+        mask &= self.df['Country Name'] == 'Australia'
+        mask &= self.df['Property Country'] == 'Australia'
+        mask &= self.df['Platform Type Name'] == 'Mobile App'
+        mask &= self.df['Week'] == 45
+        mask &= self.df['Year'] == 2022
+
+        self.df.loc[mask, 'Net Gross Booking Value USD'] = self.df.loc[mask, 'Net Gross Booking Value USD'] / 100
+
+    def apply_dtypes(self) -> None:
+        self.df = self.df.astype(self.cols_dtype)
+        return self.df

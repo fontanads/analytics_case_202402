@@ -17,7 +17,6 @@ Please also consider what other data or information you would request, in order 
 - Mobile flag to explain uplift ("test"/causal effect)
   - mobile (all) vs. desktop
   - mobile app vs mobile web (exclude desktop)
-- breakdown APAC 2022-W45 to identify why is it doubled in gross bookings
 
 ## Extra Information that would be useful
 
@@ -151,3 +150,14 @@ Thus, the insight is that there is a larger probability of cancelling when the H
 This should be better investigated to check for confounders and actual impact (maybe not a linear relationship).  
 Also, "probability" of cancelling is not available in this aggregated data.
 
+### APAC outlier 2022-W45
+
+W45 of 2022 has double Net Gross Bookings USD for APAC region.
+When we breakdown APAC 2022-W45 to identify why is it doubled in gross bookings, we find that
+  - the source of the outlier is domestic Australia-Australia in Mobile App platforms
+  - "Net Gross Booking Value USD" for this cohort is 100x above avg. of the following weeks
+  - hard to explain it, because "Net Orders" doesn't have this spike, meaning avg. ticket goes 100x more expensive only in Mobile App ($27.4k vs. $271 in other weeks)
+  - looks more like an aggregation error, probably duplicated source entries for this specific dimensions
+
+So I'll assume it as an error, and treat/clean the gross bookings of this cohort dividing it by 100.  
+Even doing that, avg. ticket for APAC 2022-W45 still looks a bit off.
